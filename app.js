@@ -1,3 +1,14 @@
+//adding spinner
+document.getElementById("search")
+
+.addEventListener("keypress", function(event) {
+
+    if (event.key == 'Enter'){
+    document.getElementById("search-btn").click();
+    }
+});
+
+
 const imagesArea = document.querySelector('.images');
 const gallery = document.querySelector('.gallery');
 const galleryHeader = document.querySelector('.gallery-header');
@@ -20,31 +31,41 @@ const showImages = (images) => {
   // show gallery title
   galleryHeader.style.display = 'flex';
   images.forEach(image => {
+    
     let div = document.createElement('div');
     div.className = 'col-lg-3 col-md-4 col-xs-6 img-item mb-2';
-    div.innerHTML = ` <img class="img-fluid img-thumbnail" onclick=selectItem(event,"${image.webformatURL}") src="${image.webformatURL}" alt="${image.tags}">`;
+    div.innerHTML = ` 
+    <img class="img-fluid img-thumbnail" onclick=selectItem(event,"${image.webformatURL}") src="${image.webformatURL}" alt="${image.tags}">`;
+
     gallery.appendChild(div)
+    
   })
+  toggleSpinner();
 }
 
+
 const getImages = (query) => {
+  toggleSpinner()
+  
   fetch(`https://pixabay.com/api/?key=${KEY}=${query}&image_type=photo&pretty=true`)
+  
    .then(response => response.json())
     .then(data => showImages(data.hits))
     .catch(err => console.log(err))
 }
 
 let slideIndex = 0;
-const selectItem = (event, img) => {
+const selectItem = (event,img) => {
   let element = event.target;
-  element.classList.add('added');
- 
+
+  element.classList.toggle('added');
+  
   let item = sliders.indexOf(img);
   if (item === -1) {
-    sliders.push(img);
+  sliders.push(img);
   } else {
-    alert('Hey, Already added !')
-  }
+   sliders.splice(item,1);
+ }
 }
 var timer
 const createSlider = () => {
@@ -66,7 +87,14 @@ const createSlider = () => {
   document.querySelector('.main').style.display = 'block';
   // hide image aria
   imagesArea.style.display = 'none';
-  const duration = document.getElementById('duration').value || 1000 ;
+  let duration = document.getElementById('duration').value || 1000 ;
+   
+  if(duration < 0){
+   
+
+    duration = duration*(-1);
+    console.log(duration);
+  }
   sliders.forEach(slide => {
     let item = document.createElement('div')
     item.className = "slider-item";
@@ -74,23 +102,17 @@ const createSlider = () => {
     src="${slide}"
     alt="">`;
     sliderContainer.appendChild(item)
+   
   })
-  if(duration >0){
+ 
 
   changeSlide(0)
   timer = setInterval(function () {
+   
     slideIndex++;
     
     changeSlide(slideIndex);
   }, duration);
-  
-}
-else{
-
-  alert('Duration can not be negative');
-
-
-}
 
 };
 
@@ -132,3 +154,10 @@ searchBtn.addEventListener('click', function () {
 sliderBtn.addEventListener('click', function () {
   createSlider()
 })
+
+const toggleSpinner = () =>{
+
+  const spinner = document.getElementById('loading-spinner');
+  spinner.classList.toggle('d-none');
+
+}
